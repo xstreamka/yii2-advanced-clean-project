@@ -20,14 +20,8 @@ class Yii {
 
 /**
  * @property yii\rbac\DbManager $authManager 
- * @property \yii\web\User|__WebUser $user
+ * @property \common\components\UserComponent $user The user component. This property is read-only.
  * 
  */
 class __Application {
-}
-
-/**
- * @property app\models\User $identity
- */
-class __WebUser {
 }
