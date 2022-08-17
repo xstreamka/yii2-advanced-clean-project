@@ -1,3 +1,46 @@
+### Описание
+
+Это "чистый" шаблон Yii2 (от 21.06.2022), модифицированный под себя.
+<br>
+Работает на php 7.4 + nginx 1.21 + postgresql 12
+
+После копирования проекта к себе, необходимо выполнить:
+```bash
+# качаем зависимости
+composer install
+
+# генерируем yii2
+php init --env=Development --overwrite=All
+```
+
+и внести необходимые правки в файлы:
+
+* common/config/main-local.php
+* common/config/params-local.php
+
+Далее нужно создать пользователя `yii2` в PostgreSQL.
+<br>
+В корне лежит файл БД `yii2.sql`, его следует удалить после:
+```bash
+# создаем пользователя yii2
+createuser -U postgres -d yii2
+
+# создаем БД
+createdb -U yii2 yii2
+
+# заливаем данные
+psql -U yii2 -d yii2 -f yii2.sql
+```
+
+Админка и суперпользователь:
+```
+Адрес: /admin/
+Логин: admin@yiiframework.com
+Пароль: admin
+```
+
+##
+
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
