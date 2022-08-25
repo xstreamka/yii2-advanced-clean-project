@@ -11,7 +11,23 @@ return [
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
-    'modules' => [],
+    'modules' => [
+        'rbac' => [
+            'class' => 'yii2mod\rbac\Module',
+            'as access' => [
+                'class' => \yii2mod\rbac\filters\AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['superadmin'],
+                    ],
+                ],
+            ],
+        ],
+        'user' => [
+            'class' => 'backend\modules\user\Module',
+        ],
+    ],
     'components' => [
         'request' => [
             'csrfParam' => '_csrf-backend',
@@ -45,13 +61,28 @@ return [
             'showScriptName' => false,
             'suffix' => '/',
             'rules' => [
+                // Базовые правила.
                 '' => 'site/index',
                 '<action:(login|logout)>' => 'site/<action>',
+
+                // Точка входа модуля.
+                'user/<action:(view|update|delete)>/<id:[\d]+>' => 'user/user/<action>',
+                'user/<action:(create)>' => 'user/user/<action>',
+                'user' => 'user/user/index',
+                // Остальная обработка модуля.
+                '<module:(user|rbac)>/<controller:[\w-]+>/<action:[\w-]+>/<id:[\d]+>' => '<module>/<controller>/<action>',
+                '<module:(user|rbac)>/<controller:[\w-]+>/<action:[\w-]+>/<alias:[\w-]+>' => '<module>/<controller>/<action>',
+                '<module:(user|rbac)>/<controller:[\w-]+>/<action:[\w-]+>' => '<module>/<controller>/<action>',
+                '<module:(user|rbac)>/<controller:[\w-]+>' => '<module>/<controller>/index',
+
+                // Модуль debug.
                 'debug/<controller>/<action>' => 'debug/<controller>/<action>',
+
+                // Все остальное.
                 '<controller>/<action>/<id:[\d]+>' => '<controller>/<action>',
-                '<controller>/<action>/<alias:[\d\-_a-zA-Z]+>' => '<controller>/<action>',
+                '<controller>/<action>/<alias:[\w-]+>' => '<controller>/<action>',
                 '<controller>/<action>' => '<controller>/<action>',
-                '<controller>/' => '<controller>/index',
+                '<controller>' => '<controller>/index',
             ],
         ],
         'assetManager' => [
@@ -64,5 +95,13 @@ return [
             'class' => 'yii\rbac\DbManager',
         ],
     ],
+    'on beforeAction' => function (\yii\base\ActionEvent $event) {
+        $user = Yii::$app->user;
+        // Глобальная проверка на права админки.
+        if (!$user->isGuest && !$user->can('dashboard')) {
+            Yii::$app->response->redirect('/');
+            Yii::$app->end();
+        }
+    },
     'params' => $params,
 ];

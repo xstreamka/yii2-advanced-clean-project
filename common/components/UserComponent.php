@@ -10,6 +10,7 @@
 namespace common\components;
 
 
+use common\interfaces\UserInterface;
 use Yii;
 use yii\base\InvalidValueException;
 use yii\web\IdentityInterface;
@@ -22,7 +23,7 @@ use yii\web\User;
  *
  * @package common\components
  */
-class UserComponent extends User
+class UserComponent extends User implements UserInterface
 {
     public function init()
     {
@@ -66,7 +67,7 @@ class UserComponent extends User
 
     /**
      * Проверка разрешений.
-     * @param string|array $permission Разрешения
+     * @param string|array $permissions Разрешения
      * @return bool
      */
     public function can($permissions, $params = [], $allowCaching = true): bool
@@ -88,7 +89,7 @@ class UserComponent extends User
     /**
      * @return bool
      */
-    public function isSuperadmin()
+    public function isSuperadmin(): bool
     {
         return !$this->isGuest && $this->identity->hasGroup('superadmin');
     }
@@ -96,7 +97,7 @@ class UserComponent extends User
     /**
      * @return bool
      */
-    public function isAdmin()
+    public function isAdmin(): bool
     {
         return !$this->isGuest && $this->identity->hasGroup(['superadmin', 'admin']);
     }
@@ -104,7 +105,7 @@ class UserComponent extends User
     /**
      * @return bool
      */
-    public function isModer()
+    public function isModer(): bool
     {
         return !$this->isGuest && $this->identity->hasGroup('moderator');
     }
@@ -112,7 +113,7 @@ class UserComponent extends User
     /**
      * @return bool
      */
-    public function isUser()
+    public function isUser(): bool
     {
         return !$this->isGuest && $this->identity->hasGroup('user');
     }

@@ -2,6 +2,7 @@
 
 namespace backend\controllers;
 
+use common\helpers\LogHelper;
 use common\models\LoginForm;
 use Yii;
 use yii\filters\VerbFilter;
@@ -37,7 +38,7 @@ class SiteController extends Controller
             'verbs' => [
                 'class' => VerbFilter::class,
                 'actions' => [
-                    'logout' => ['post'],
+                    '*' => ['get', 'post'],
                 ],
             ],
         ];
@@ -79,8 +80,14 @@ class SiteController extends Controller
         $this->layout = 'blank';
 
         $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->login()) {
+                LogHelper::auth(LogHelper::MESSAGE_AUTH_SUCCESS);
+                return $this->goBack();
+            } else {
+                $message = LogHelper::MESSAGE_AUTH_ERROR . ", email: {$model->email}, password: $model->password";
+                LogHelper::auth($message, LogHelper::TYPE_ERROR);
+            }
         }
 
         $model->password = '';
@@ -97,6 +104,8 @@ class SiteController extends Controller
      */
     public function actionLogout()
     {
+        LogHelper::auth(LogHelper::MESSAGE_LOGOUT);
+
         Yii::$app->user->logout();
 
         return $this->goHome();

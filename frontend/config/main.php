@@ -47,13 +47,18 @@ return [
             'showScriptName' => false,
             'suffix' => '/',
             'rules' => [
+                // Базовые правила.
                 '' => 'site/index',
                 '<action:(login|logout)>' => 'site/<action>',
+
+                // Модуль debug.
                 'debug/<controller>/<action>' => 'debug/<controller>/<action>',
+
+                // Все остальное.
                 '<controller>/<action>/<id:[\d]+>' => '<controller>/<action>',
-                '<controller>/<action>/<alias:[\d\-_a-zA-Z]+>' => '<controller>/<action>',
+                '<controller>/<action>/<alias:[\w-]+>' => '<controller>/<action>',
                 '<controller>/<action>' => '<controller>/<action>',
-                '<controller>/' => '<controller>/index',
+                '<controller>' => '<controller>/index',
             ]
         ],
         'assetManager' => [

@@ -3,6 +3,7 @@
 namespace common\models;
 
 use common\helpers\DevHelper;
+use common\interfaces\UserInterface;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
@@ -13,20 +14,23 @@ use yii\web\IdentityInterface;
  * User model
  *
  * @property integer $id
- * @property string $username
+ * @property string $username Имя
+ * @property string $lastname Фамилия
  * @property string $password_hash
  * @property string $password_reset_token
  * @property string $verification_token
- * @property string $email
+ * @property string $email Email
  * @property string $auth_key
- * @property integer $status
- * @property integer $created_at
- * @property integer $updated_at
+ * @property integer $status Статус
+ * @property integer $created_at Создан
+ * @property integer $updated_at Обновлен
+ *
  * @property string $password write-only password
  *
  * @property array $group Группы пользователя.
+ * @property array $statusText Текст статуса юзера.
  */
-class User extends ActiveRecord implements IdentityInterface
+class User extends ActiveRecord implements IdentityInterface, UserInterface
 {
     const STATUS_DELETED = 0;
     const STATUS_PROCESS = 7;
@@ -42,10 +46,8 @@ class User extends ActiveRecord implements IdentityInterface
         self::STATUS_ACTIVE => 'Активен'
     ];
 
-    const ACTIVE_YES = 1;
-    const ACTIVE_NO = 0;
-
     public $validated = true;
+    public $password_new = '';
 
 
     /**
@@ -62,20 +64,20 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         $rules = [
-            [['username', 'last_name', 'email'], 'filter', 'filter' => 'trim'],
+            [['username', 'lastname', 'email', 'password_new'], 'filter', 'filter' => 'trim'],
 
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => array_keys(self::STATUS_TEXT)],
 
-            [['username', 'last_name', 'email'], 'string', 'min' => 2, 'max' => 255],
+            [['username', 'lastname', 'email'], 'string', 'min' => 2, 'max' => 255],
             [['email'], 'unique', 'targetClass' => '\common\models\User'],
 
             ['email', 'required'],
         ];
 
         if ($this->validated) {
-            $rules[] = [['username', 'last_name'], 'required'];
-            $rules[] = [['username', 'last_name'], 'match', 'pattern' => '/^[а-яё\s-]+$/iu', 'message' => 'Используйте русские буквы.'];
+            $rules[] = [['username', 'lastname'], 'required'];
+            $rules[] = [['username', 'lastname'], 'match', 'pattern' => '/^[а-яё\s-]+$/iu', 'message' => 'Используйте русские буквы.'];
             $rules[] = ['email', 'email'];
         }
 
@@ -84,6 +86,23 @@ class User extends ActiveRecord implements IdentityInterface
         }
 
         return $rules;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'username' => 'Имя',
+            'lastname' => 'Фамилия',
+            'email' => 'Email',
+            'group' => 'Группа',
+            'status' => 'Статус',
+            'password_new' => 'Новый пароль',
+            'created_at' => 'Создан',
+            'updated_at' => 'Обновлен',
+        ];
     }
 
     /**
@@ -324,10 +343,17 @@ class User extends ActiveRecord implements IdentityInterface
     public function setGroup(array $roles = [])
     {
         $auth = Yii::$app->authManager;
-        $auth->revokeAll($this->id);
+
+        // Удаляем старые группы.
+        foreach ($this->group as $role) {
+            $oldRole = $auth->getRole($role);
+            $auth->revoke($oldRole, $this->id);
+        }
+
+        // Назначаем новые.
         foreach ($roles as $role) {
-            $userRole = $auth->getRole($role);
-            $auth->assign($userRole, $this->id);
+            $newRole = $auth->getRole($role);
+            $auth->assign($newRole, $this->id);
         }
     }
 
@@ -347,49 +373,113 @@ class User extends ActiveRecord implements IdentityInterface
      * @param string|array $groups
      * @return bool
      */
-    public function hasGroup($groups)
+    public function hasGroup($groups): bool
     {
         return !empty(array_intersect((array)$groups, $this->group));
     }
 
     /**
      * Проверка разрешений.
-     * @param string $permission
+     * @param string|array $permissions Разрешения
      * @return bool
      */
-    public function can(string $permission)
+    public function can($permissions): bool
     {
-        return Yii::$app->authManager->checkAccess($this->id, $permission);
+        // Боженька все видит.
+        if ($this->isSuperadmin()) {
+            return true;
+        }
+
+        $auth = Yii::$app->authManager;
+
+        foreach ((array)$permissions as $permission) {
+            if ($auth->checkAccess($this->id, $permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSuperadmin(): bool
+    {
+        return $this->hasGroup('superadmin');
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasGroup(['superadmin', 'admin']);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isModer(): bool
+    {
+        return $this->hasGroup('moderator');
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUser(): bool
+    {
+        return $this->hasGroup('user');
     }
 
     /**
      * Получаем текст статуса юзера.
-     * @return mixed
+     * @return string
      */
     public function getStatusText()
     {
-        return self::STATUS_TEXT[$this->status];
+        return self::STATUS_TEXT[$this->status] ?? '';
     }
 
     /**
-     * @param int $id
-     * @param bool $obj Объектом или массивом.
-     * @return array|bool|User|null
+     * @return bool
      */
-    public static function getUserById($id, $obj = false)
+    public function isActive(): bool
     {
-        if (empty($id)) {
-            return false;
-        }
-        $query = self::find()
-            ->where([
-                'status' => self::STATUS_ACTIVE,
-                'id' => $id
-            ]);
-        if (!$obj) {
-            $query->asArray();
-        }
-        return $query->one();
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInActive(): bool
+    {
+        return $this->status === self::STATUS_INACTIVE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBlocked(): bool
+    {
+        return $this->status === self::STATUS_BLOCKED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProcess(): bool
+    {
+        return $this->status === self::STATUS_PROCESS;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted(): bool
+    {
+        return $this->status === self::STATUS_DELETED;
     }
 
     /**
@@ -404,81 +494,11 @@ class User extends ActiveRecord implements IdentityInterface
             ->where(['status' => User::STATUS_ACTIVE])
             ->innerJoin('auth_assignment', '{{auth_assignment.user_id}} = {{user.id}}')
             ->andWhere(['auth_assignment.item_name' => $group]);
+
         if (!$obj) {
             $query->asArray();
         }
+
         return $query->all();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isActive()
-    {
-        return $this->status == self::STATUS_ACTIVE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isInActive()
-    {
-        return $this->status == self::STATUS_INACTIVE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isBlocked()
-    {
-        return $this->status === self::STATUS_BLOCKED;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isProcess()
-    {
-        return $this->status === self::STATUS_PROCESS;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDeleted()
-    {
-        return $this->status === self::STATUS_DELETED;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isSuperadmin()
-    {
-        return $this->hasGroup('superadmin');
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAdmin()
-    {
-        return $this->hasGroup(['superadmin', 'admin']);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isModer()
-    {
-        return $this->hasGroup('moderator');
-    }
-
-    /**
-     * @return bool
-     */
-    public function isUser()
-    {
-        return $this->hasGroup('user');
     }
 }
