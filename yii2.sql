@@ -103,7 +103,7 @@ CREATE TABLE public."user" (
     created_at character varying(255) NOT NULL,
     updated_at character varying(255) DEFAULT NULL::character varying,
     verification_token character varying(255) DEFAULT NULL::character varying,
-    last_name character varying(255)
+    lastname character varying(255) NOT NULL
 );
 
 
@@ -114,6 +114,7 @@ ALTER TABLE public."user" OWNER TO yii2;
 --
 
 CREATE SEQUENCE public.user_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -142,7 +143,7 @@ ALTER TABLE ONLY public."user" ALTER COLUMN id SET DEFAULT nextval('public.user_
 --
 
 COPY public.auth_assignment (item_name, user_id, created_at) FROM stdin;
-superadmin	1	1639402766
+superadmin	1	1661263383
 \.
 
 
@@ -151,16 +152,16 @@ superadmin	1	1639402766
 --
 
 COPY public.auth_item (name, type, description, rule_name, data, created_at, updated_at) FROM stdin;
-dashboard	2	Админ панель	\N	\N	1590644951	1590644951
-change_user	2	Изменение данных пользователей	\N	\N	1590644951	1590644951
-moderator	1	Модератор	\N	\N	1590645297	1592931010
-alert	2	Сервисные сообщения в шапке сайта (frontend)	\N	\N	1593702962	1594196282
 clear_cache	2	Очистка кеша	\N	\N	1595495016	1595495016
-log	2	Смотреть логи	\N	\N	1595927616	1595927616
-user	1	Пользователь	\N	\N	1590645254	1602237187
 yii_debug	2	Yii debug	\N	\N	1607671061	1607671061
-admin	1	Админ	\N	\N	1592929324	1607671177
-superadmin	1	Суперадмин	\N	\N	1590644951	1607671186
+change_user	2	Изменение данных пользователей	\N	\N	1590644951	1660910775
+admin	1	Админ	\N	\N	1592929324	1661186413
+superadmin	1	Суперадмин	\N	\N	1590644951	1661191916
+user	1	Пользователь	\N	\N	1590645254	1661193890
+log	2	Смотреть логи	\N	\N	1595927616	1661196773
+moderator	1	Модератор	\N	\N	1590645297	1661268704
+dashboard	2	Админ панель	\N	\N	1590644951	1661432451
+alert	2	Сервисные сообщения в шапке сайта (frontend)	\N	\N	1593702962	1661184815
 \.
 
 
@@ -175,12 +176,7 @@ admin	alert
 admin	clear_cache
 admin	log
 admin	yii_debug
-superadmin	dashboard
-superadmin	change_user
-superadmin	alert
-superadmin	clear_cache
-superadmin	log
-superadmin	yii_debug
+moderator	dashboard
 \.
 
 
@@ -207,8 +203,8 @@ m190124_110200_add_verification_token_column_to_user_table	1590395365
 -- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: yii2
 --
 
-COPY public."user" (id, username, auth_key, password_hash, password_reset_token, email, status, created_at, updated_at, verification_token, last_name) FROM stdin;
-1	Админ	AxZLbtNQ3sN5J0ZxW0OtXVXUZNcHbkaX	$2y$13$Vm9r4lu/8mhA451zy6nlNeX.QT.oSIy76iY8nj6QoJQkEWJNMT.nS	\N	admin@yiiframework.com	10	1970-01-01 00:00:00	\N	XRj0Bs2jyi-WNT4lkonaRHAc1LZ0ZRac_1596709776	Админов
+COPY public."user" (id, username, auth_key, password_hash, password_reset_token, email, status, created_at, updated_at, verification_token, lastname) FROM stdin;
+1	Админ	AxZLbtNQ3sN5J0ZxW0OtXVXUZNcHbkaX	$2y$13$Vm9r4lu/8mhA451zy6nlNeX.QT.oSIy76iY8nj6QoJQkEWJNMT.nS	\N	admin@yiiframework.com	10	1970-01-01 00:00:00	2022-08-23 17:03:03	XRj0Bs2jyi-WNT4lkonaRHAc1LZ0ZRac_1596709776	Админов
 \.
 
 
