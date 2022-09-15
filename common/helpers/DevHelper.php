@@ -50,7 +50,7 @@ class DevHelper
 
         Yii::$app->mailer->compose()
             ->setTo($to)
-            ->setFrom(Yii::$app->params['error500Email'])
+            ->setFrom(Yii::$app->params['errorEmail'])
             ->setSubject('Оповещение разработчиков при ошибках ' . Yii::$app->params['host'])
             ->setHtmlBody($body)
             ->send();

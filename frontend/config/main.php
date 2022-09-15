@@ -36,6 +36,37 @@ return [
                 [
                     'class' => \yii\log\FileTarget::class,
                     'levels' => ['error', 'warning'],
+                    'except' => [
+                        'yii\debug\Module*',
+                    ],
+                ],
+                // Фиксирование ошибок 404 на почту.
+                [
+                    'class' => 'yii\log\EmailTarget',
+                    'mailer' => 'mailer',
+                    'levels' => ['error'],
+                    'categories' => [
+                        'yii\web\HttpException:404',
+                    ],
+                    'message' => [
+                        'from' => $params['errorEmail'],
+                        'to' => $params['supportEmail'],
+                        'subject' => "{$params['url']}{$_SERVER['REQUEST_URI']} Ошибка 404 на сайте {$params['host']}",
+                    ],
+                ],
+                // Фиксирование остальных ошибок на почту.
+                [
+                    'class' => 'yii\log\EmailTarget',
+                    'mailer' => 'mailer',
+                    'levels' => ['error'],
+                    'except' => [
+                        'yii\web\HttpException:404',
+                    ],
+                    'message' => [
+                        'from' => $params['errorEmail'],
+                        'to' => $params['supportEmail'],
+                        'subject' => "{$params['url']}{$_SERVER['REQUEST_URI']} Ошибка 50* на сайте {$params['host']}",
+                    ],
                 ],
             ],
         ],
