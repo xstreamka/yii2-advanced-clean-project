@@ -11,6 +11,10 @@ return [
         'cache' => [
             'class' => \yii\caching\FileCache::class,
         ],
+        'cacheFrontend' => [
+            'class' => 'yii\caching\FileCache',
+            'cachePath' => Yii::getAlias('@frontend') . '/runtime/cache'
+        ],
         'i18n' => [
             'translations' => [
                 'yii2mod.rbac' => [

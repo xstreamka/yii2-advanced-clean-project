@@ -8,6 +8,7 @@
 
 namespace backend\widgets;
 
+use common\helpers\CF;
 use Yii;
 use yii\bootstrap\Widget;
 use yii\bootstrap5\Html;
@@ -136,6 +137,13 @@ CSS;
                 'label' => 'Gii',
                 'url' => ['../gii'],
                 'linkOptions' => ['target' => '_blank'],
+            ];
+        }
+
+        if ($user->can('clear_cache')) {
+            $menuItems[] = [
+                'label' => 'Очистить кэш',
+                'url' => CF::getCleanUrl() . '?clear_cache=1',
             ];
         }
 

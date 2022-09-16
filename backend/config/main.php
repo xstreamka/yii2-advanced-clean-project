@@ -102,6 +102,17 @@ return [
             Yii::$app->response->redirect('/');
             Yii::$app->end();
         }
+        // Очистка всего кеша.
+        if (
+            Yii::$app->request->get('clear_cache')
+            && $user->can('clear_cache')
+        ) {
+            Yii::$app->cache->flush();
+            Yii::$app->cacheFrontend->flush();
+            Yii::$app->response->redirect(\common\helpers\CF::getCleanUrl());
+            Yii::$app->session->setFlash('success', 'Кэш успешно очищен');
+            Yii::$app->end();
+        }
     },
     'params' => $params,
 ];

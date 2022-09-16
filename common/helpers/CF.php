@@ -267,4 +267,56 @@ class CF
         FileHelper::createDirectory($dir);
         return $dir . $filename;
     }
+
+    /**
+     * Телефон формата 9876543210 без +7 или 8.
+     * @param string $phone
+     * @return string|null
+     */
+    public static function getClearPhone(?string $phone): ?string
+    {
+        if (empty($phone)) {
+            return null;
+        }
+
+        $phone = preg_replace('/\D+/', '', $phone);
+        if (iconv_strlen($phone) > 10) {
+            $phone = substr($phone, 1);
+        }
+
+        return iconv_strlen($phone) === 10 ? $phone : null;
+    }
+
+    /**
+     * Получить чистый URL.
+     * @return false|mixed|string
+     */
+    public static function getCleanUrl()
+    {
+        return strstr(Yii::$app->request->url, '?', true) ?: Yii::$app->request->url;
+    }
+
+    /**
+     * Ищет совпадения адреса.
+     * @param string|array $urls
+     * @return bool
+     */
+    public static function checkUrl($urls): bool
+    {
+        foreach ((array)$urls as $url) {
+            if (strpos(self::getCleanUrl(), $url) === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Является ли адрес API.
+     * @return bool
+     */
+    public static function isApiUrl(): bool
+    {
+        return self::checkUrl('/api/');
+    }
 }
