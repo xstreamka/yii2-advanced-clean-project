@@ -46,7 +46,8 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
         self::STATUS_ACTIVE => 'Активен'
     ];
 
-    public $validated = true;
+    /** @var bool Проверка всех полей */
+    public $validateAll = true;
     public $password_new = '';
 
 
@@ -75,7 +76,7 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
             ['email', 'required'],
         ];
 
-        if ($this->validated) {
+        if ($this->validateAll) {
             $rules[] = [['username', 'lastname'], 'required'];
             $rules[] = [['username', 'lastname'], 'match', 'pattern' => '/^[а-яё\s-]+$/iu', 'message' => 'Используйте русские буквы.'];
             $rules[] = ['email', 'email'];

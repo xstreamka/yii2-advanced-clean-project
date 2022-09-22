@@ -9,6 +9,7 @@
 namespace common\helpers;
 
 use Yii;
+use yii\db\ActiveRecord;
 use yii\helpers\Html;
 
 class CF
@@ -29,6 +30,18 @@ class CF
                 return number_format($number, 0, '.', ' ');
             }
         }
+    }
+
+    /**
+     * Проверка на JSON.
+     * @param $string
+     * @return bool
+     */
+    public static function isJson($string): bool
+    {
+        json_decode($string);
+
+        return (json_last_error() == JSON_ERROR_NONE);
     }
 
     /**
@@ -256,19 +269,6 @@ class CF
     }
 
     /**
-     * Путь к логу.
-     * Создает папку для лога, если нужно.
-     * @param string $filename Файл
-     * @return string
-     */
-    public static function getLog(string $filename = ''): string
-    {
-        $dir = Yii::getAlias('@log' . date('/Y-m-d/'));
-        FileHelper::createDirectory($dir);
-        return $dir . $filename;
-    }
-
-    /**
      * Телефон формата 9876543210 без +7 или 8.
      * @param string $phone
      * @return string|null
@@ -280,7 +280,7 @@ class CF
         }
 
         $phone = preg_replace('/\D+/', '', $phone);
-        if (iconv_strlen($phone) > 10) {
+        if (in_array($phone[0], [7, 8])) {
             $phone = substr($phone, 1);
         }
 
@@ -318,5 +318,29 @@ class CF
     public static function isApiUrl(): bool
     {
         return self::checkUrl('/api/');
+    }
+
+    /**
+     * Общий SELECT FOR UPDATE.
+     * Пример:
+     *      $transaction = Yii::$app->db->beginTransaction();
+     *      $access_token = CF::selectForUpdate($this, 'access_token');
+     *      $access_token_expiration = CF::selectForUpdate($this, 'access_token_expiration');
+     *      $transaction->commit();
+     * @param ActiveRecord $model
+     * @param string $field
+     * @return string|null
+     */
+    public static function selectForUpdate(ActiveRecord $model, string $field)
+    {
+        $sql = $model::find()
+            ->where(['id' => $model->id])
+            ->select($field)
+            ->createCommand()
+            ->getRawSql();
+
+        $query = $model::findBySql("{$sql} FOR UPDATE")->asArray()->one();
+
+        return $query[$field] ?? null;
     }
 }

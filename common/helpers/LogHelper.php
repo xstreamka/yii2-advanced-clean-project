@@ -121,4 +121,38 @@ class LogHelper
     {
         self::log($type, $message, 'auth');
     }
+
+
+
+
+
+
+    /**
+     * Путь к логу.
+     * Создает папку для лога, если нужно.
+     * @param string $dirname Папка
+     * @param string $filename Файл
+     * @return string
+     */
+    public static function getLog(string $dirname, string $filename): string
+    {
+        $dir = Yii::getAlias("@log/{$dirname}/" . date('Y-m-d'));
+        FileHelper::createDirectory($dir);
+
+        return "{$dir}/{$filename}.log";
+    }
+
+    /**
+     * Сохранение лога.
+     * @param string $dirname Папка
+     * @param string $filename Файл
+     * @param string $data Данные
+     * @return void
+     */
+    public static function saveLog(string $dirname, string $filename, string $data)
+    {
+        $line = '===================================';
+        $time = date('Y-m-d H:i:s');
+        file_put_contents(self::getLog($dirname, $filename), "{$time}\n\n$data\n\n{$line} END {$line}\n\n\n\n", FILE_APPEND);
+    }
 }
