@@ -85,7 +85,7 @@ class SiteController extends Controller
                 LogHelper::auth(LogHelper::MESSAGE_AUTH_SUCCESS);
                 return $this->goBack();
             } else {
-                $message = LogHelper::MESSAGE_AUTH_ERROR . ", email: {$model->email}, password: $model->password";
+                $message = LogHelper::MESSAGE_AUTH_ERROR . ", login: {$model->login}, password: $model->password";
                 LogHelper::auth($message, LogHelper::TYPE_ERROR);
             }
         }

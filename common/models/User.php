@@ -307,6 +307,14 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     }
 
     /**
+     * Removes password reset token
+     */
+    public function removePasswordResetToken()
+    {
+        $this->password_reset_token = null;
+    }
+
+    /**
      * Generates new token for email verification
      */
     public function generateEmailVerificationToken()
@@ -317,14 +325,6 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     public function resetEmailVerificationToken()
     {
         $this->verification_token = null;
-    }
-
-    /**
-     * Removes password reset token
-     */
-    public function removePasswordResetToken()
-    {
-        $this->password_reset_token = null;
     }
 
     /**

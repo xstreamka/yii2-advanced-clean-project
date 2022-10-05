@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\helpers\LogHelper;
 use frontend\models\ResendVerificationEmailForm;
 use frontend\models\VerifyEmailForm;
 use Yii;
@@ -90,8 +91,14 @@ class SiteController extends Controller
         }
 
         $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->login()) {
+                LogHelper::auth(LogHelper::MESSAGE_AUTH_SUCCESS);
+                return $this->goBack();
+            } else {
+                $message = LogHelper::MESSAGE_AUTH_ERROR . ", login: {$model->login}, password: $model->password";
+                LogHelper::auth($message, LogHelper::TYPE_ERROR);
+            }
         }
 
         $model->password = '';
