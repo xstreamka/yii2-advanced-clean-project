@@ -40,33 +40,32 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
             'id',
-            ['attribute' => 'username', 'content' => function ($data) {
-                /** @var common\models\User $data */
+            ['attribute' => 'username', 'content' => function (User $data) {
                 return Html::a($data->username, ['view', 'id'=> $data->id]);
             }],
-	        ['attribute' => 'lastname', 'content' => function ($data) {
-		        /** @var common\models\User $data */
-		        return Html::a($data->lastname, ['view', 'id'=> $data->id]);
+	        ['attribute' => 'name', 'content' => function (User $data) {
+		        return Html::a($data->name, ['view', 'id'=> $data->id]);
 	        }],
+            ['attribute' => 'surname', 'content' => function (User $data) {
+                return Html::a($data->surname, ['view', 'id'=> $data->id]);
+            }],
             'email:email',
+            [
+                'attribute' => 'status',
+                'filter' => User::STATUS_TEXT,
+                'content' => function (User $data) {
+                    return $data->statusText;
+                }
+            ],
             [
                 'attribute' => 'group',
                 'filter' => $groups,
-                'content' => function ($data) {
-                    /** @var common\models\User $data */
+                'content' => function (User $data) {
                     $str = '<ul>';
 	                foreach ($data->group as $groupName => $group) {
                         $str .= Html::tag('li', Html::a($groupName, ['/user/role/update', 'alias' => $group]));
                     }
                     return $str;
-                }
-            ],
-            [
-                'attribute' => 'status',
-                'filter' => User::STATUS_TEXT,
-                'content' => function ($data) {
-                    /** @var common\models\User $data */
-                    return $data->statusText;
                 }
             ],
             'created_at:date',

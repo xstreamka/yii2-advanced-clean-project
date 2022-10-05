@@ -3,7 +3,6 @@
 namespace backend\modules\user\controllers;
 
 use backend\modules\user\models\LoginForm;
-use common\helpers\CF;
 use common\models\User;
 use common\models\UserSearch;
 use Yii;
@@ -92,7 +91,6 @@ class UserController extends Controller
     public function actionCreate()
     {
         $model = new LoginForm();
-        $model->isNewRecord = true;
         if ($model->load(Yii::$app->request->post())) {
             if ($user = $model->signup()) {
                 $user->group = $model->group;
@@ -131,8 +129,6 @@ class UserController extends Controller
                 $model->setPassword($model->password_new);
             }
             if ($model->save()) {
-                $model->group = Yii::$app->request->post('User')['group'] ?? [];
-
                 Yii::$app->session->setFlash('success', 'Пользователь успешно обновлен');
 
                 return $this->redirect(['view',	'id' => $model->id]);

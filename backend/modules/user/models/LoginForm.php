@@ -9,22 +9,19 @@
 namespace backend\modules\user\models;
 
 use common\models\User;
-use Yii;
 use yii\base\Model;
 
 class LoginForm extends Model
 {
-    public $isNewRecord;
+    public $isNewRecord = true;
 
     public $username;
-    public $lastname;
+    public $name;
+    public $surname;
     public $email;
     public $password;
     public $group;
     public $status;
-
-    private $_user;
-
 
     /**
      * {@inheritdoc}
@@ -32,28 +29,34 @@ class LoginForm extends Model
     public function rules()
     {
         return [
-            ['status', 'default', 'value' => User::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [User::STATUS_ACTIVE, User::STATUS_INACTIVE, User::STATUS_BLOCKED, User::STATUS_DELETED]],
+            [['username', 'name', 'surname', 'email', 'password'], 'filter', 'filter' => 'trim'],
 
-            [['username', 'lastname', 'email', 'password'], 'filter', 'filter' => 'trim'],
-            [['email'], 'unique', 'targetClass' => '\common\models\User'],
-            [['username', 'lastname', 'email', 'password'], 'string', 'min' => 2, 'max' => 255],
+            ['status', 'default', 'value' => User::STATUS_INACTIVE],
+            ['status', 'in', 'range' => array_keys(User::STATUS_TEXT)],
 
-            [['username', 'lastname', 'email', 'password', 'group'], 'required'],
-            [['username', 'lastname'], 'match', 'pattern' => '/^[а-яё\s-]+$/iu', 'message' => 'Используйте русские буквы.'],
+            [['username', 'name', 'surname', 'email', 'password'], 'string', 'min' => 2, 'max' => 255],
+            [['username'], 'match', 'pattern' => '/^\w+$/i', 'message' => 'Используйте латинские буквы.'],
+            [['name', 'surname'], 'match', 'pattern' => '/^[а-яё\s-]+$/iu', 'message' => 'Используйте русские буквы.'],
             ['email', 'email'],
+            [['username', 'email'], 'unique', 'targetClass' => '\common\models\User'],
+            [['username', 'name', 'surname', 'email', 'password'], 'required'],
+
+            ['group', 'each', 'rule' => ['string']],
+
+            [['created_at', 'updated_at', 'verification_email_at'], 'safe'],
         ];
     }
 
     public function attributeLabels()
     {
         return [
-            'username' => 'Имя',
-            'lastname' => 'Фамилия',
+            'username' => 'Логин',
+            'name' => 'Имя',
+            'surname' => 'Фамилия',
             'email' => 'Email',
-            'group' => 'Группа',
-            'status' => 'Статус',
             'password' => 'Пароль',
+            'status' => 'Статус',
+            'group' => 'Группа',
         ];
     }
 
@@ -70,43 +73,13 @@ class LoginForm extends Model
 
         $user = new User();
         $user->username = $this->username;
-        $user->lastname = $this->lastname;
+        $user->name = $this->name;
+        $user->surname = $this->surname;
         $user->email = $this->email;
         $user->status = $this->status;
         $user->setPassword($this->password);
         $user->generateAuthKey();
 
         return $user->save() ? $user : null;
-    }
-
-    /**
-     * Logs in a user using the provided username and password.
-     *
-     * @return bool whether the user is logged in successfully
-     */
-    public function login()
-    {
-        if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), 3600 * 24 * 30);
-        }
-
-        return false;
-    }
-
-    /**
-     * Finds user by [[username]]
-     *
-     * @return User|null
-     */
-    protected function getUser()
-    {
-        if ($this->_user === null) {
-            $this->_user = User::findOne([
-                'email' => $this->email,
-                'status' => User::STATUS_ACTIVE
-            ]);
-        }
-
-        return $this->_user;
     }
 }

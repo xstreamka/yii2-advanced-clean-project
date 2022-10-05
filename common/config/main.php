@@ -10,6 +10,7 @@ return [
     'components' => [
         'cache' => [
             'class' => \yii\caching\FileCache::class,
+            'defaultDuration' => 3600,
         ],
         'cacheFrontend' => [
             'class' => 'yii\caching\FileCache',
@@ -41,7 +42,7 @@ return [
                     'handler' => [
                         [
                             'type' => 'stream',
-                            'path' => "@frontend/runtime/logs/{$date}/main.log",
+                            'path' => "@log/monolog/{$date}/main.log",
                             'level' => 'debug'
                         ]
                     ],
@@ -51,7 +52,7 @@ return [
                     'handler' => [
                         [
                             'type' => 'stream',
-                            'path' => "@frontend/runtime/logs/{$date}/auth.log",
+                            'path' => "@log/monolog/{$date}/auth.log",
                             'level' => 'debug'
                         ]
                     ],

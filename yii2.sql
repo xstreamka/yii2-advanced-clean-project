@@ -89,61 +89,11 @@ CREATE TABLE public.migration (
 ALTER TABLE public.migration OWNER TO yii2;
 
 --
--- Name: user; Type: TABLE; Schema: public; Owner: yii2
---
-
-CREATE TABLE public."user" (
-    id integer NOT NULL,
-    username character varying(255) NOT NULL,
-    auth_key character varying(32) NOT NULL,
-    password_hash character varying(255) NOT NULL,
-    password_reset_token character varying(255),
-    email character varying(255) NOT NULL,
-    status smallint DEFAULT 10 NOT NULL,
-    created_at character varying(255) NOT NULL,
-    updated_at character varying(255) DEFAULT NULL::character varying,
-    verification_token character varying(255) DEFAULT NULL::character varying,
-    lastname character varying(255) NOT NULL
-);
-
-
-ALTER TABLE public."user" OWNER TO yii2;
-
---
--- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: yii2
---
-
-CREATE SEQUENCE public.user_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.user_id_seq OWNER TO yii2;
-
---
--- Name: user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: yii2
---
-
-ALTER SEQUENCE public.user_id_seq OWNED BY public."user".id;
-
-
---
--- Name: user id; Type: DEFAULT; Schema: public; Owner: yii2
---
-
-ALTER TABLE ONLY public."user" ALTER COLUMN id SET DEFAULT nextval('public.user_id_seq'::regclass);
-
-
---
 -- Data for Name: auth_assignment; Type: TABLE DATA; Schema: public; Owner: yii2
 --
 
 COPY public.auth_assignment (item_name, user_id, created_at) FROM stdin;
-superadmin	1	1661263383
+superadmin	1	1664904966
 \.
 
 
@@ -153,15 +103,12 @@ superadmin	1	1661263383
 
 COPY public.auth_item (name, type, description, rule_name, data, created_at, updated_at) FROM stdin;
 clear_cache	2	Очистка кеша	\N	\N	1595495016	1595495016
-yii_debug	2	Yii debug	\N	\N	1607671061	1607671061
 change_user	2	Изменение данных пользователей	\N	\N	1590644951	1660910775
-admin	1	Админ	\N	\N	1592929324	1661186413
 superadmin	1	Суперадмин	\N	\N	1590644951	1661191916
 user	1	Пользователь	\N	\N	1590645254	1661193890
-log	2	Смотреть логи	\N	\N	1595927616	1661196773
-moderator	1	Модератор	\N	\N	1590645297	1661268704
 dashboard	2	Админ панель	\N	\N	1590644951	1661432451
-alert	2	Сервисные сообщения в шапке сайта (frontend)	\N	\N	1593702962	1661184815
+admin	1	Админ	\N	\N	1592929324	1664899679
+moderator	1	Модератор	\N	\N	1590645297	1664899716
 \.
 
 
@@ -170,12 +117,9 @@ alert	2	Сервисные сообщения в шапке сайта (frontend
 --
 
 COPY public.auth_item_child (parent, child) FROM stdin;
-admin	dashboard
-admin	change_user
-admin	alert
 admin	clear_cache
-admin	log
-admin	yii_debug
+admin	change_user
+admin	dashboard
 moderator	dashboard
 \.
 
@@ -194,25 +138,7 @@ COPY public.auth_rule (name, data, created_at, updated_at) FROM stdin;
 
 COPY public.migration (version, apply_time) FROM stdin;
 m000000_000000_base	1590395361
-m130524_201442_init	1590395365
-m190124_110200_add_verification_token_column_to_user_table	1590395365
 \.
-
-
---
--- Data for Name: user; Type: TABLE DATA; Schema: public; Owner: yii2
---
-
-COPY public."user" (id, username, auth_key, password_hash, password_reset_token, email, status, created_at, updated_at, verification_token, lastname) FROM stdin;
-1	Админ	AxZLbtNQ3sN5J0ZxW0OtXVXUZNcHbkaX	$2y$13$Vm9r4lu/8mhA451zy6nlNeX.QT.oSIy76iY8nj6QoJQkEWJNMT.nS	\N	admin@yiiframework.com	10	1970-01-01 00:00:00	2022-08-23 17:03:03	XRj0Bs2jyi-WNT4lkonaRHAc1LZ0ZRac_1596709776	Админов
-\.
-
-
---
--- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: yii2
---
-
-SELECT pg_catalog.setval('public.user_id_seq', 1, true);
 
 
 --
@@ -253,30 +179,6 @@ ALTER TABLE ONLY public.auth_rule
 
 ALTER TABLE ONLY public.migration
     ADD CONSTRAINT migration_pkey PRIMARY KEY (version);
-
-
---
--- Name: user user_email_key; Type: CONSTRAINT; Schema: public; Owner: yii2
---
-
-ALTER TABLE ONLY public."user"
-    ADD CONSTRAINT user_email_key UNIQUE (email);
-
-
---
--- Name: user user_password_reset_token_key; Type: CONSTRAINT; Schema: public; Owner: yii2
---
-
-ALTER TABLE ONLY public."user"
-    ADD CONSTRAINT user_password_reset_token_key UNIQUE (password_reset_token);
-
-
---
--- Name: user user_pkey; Type: CONSTRAINT; Schema: public; Owner: yii2
---
-
-ALTER TABLE ONLY public."user"
-    ADD CONSTRAINT user_pkey PRIMARY KEY (id);
 
 
 --

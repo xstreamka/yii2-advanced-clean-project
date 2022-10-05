@@ -14,10 +14,10 @@ use yii\helpers\Html;
  * @var array $groups
  */
 
-$this->title = 'Изменить пользователя: ' . $model->username . ' ' . $model->lastname;
+$this->title = 'Изменить пользователя: ' . $model->username;
 
 $this->params['breadcrumbs'][] = ['label' => 'Пользователи', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->username . ' ' . $model->lastname, 'url' => ['view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = ['label' => $model->username, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Изменить';
 
 ?>

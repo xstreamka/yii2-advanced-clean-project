@@ -2,33 +2,42 @@
 
 namespace common\models;
 
+use common\helpers\CF;
 use common\helpers\DevHelper;
+use common\helpers\LogHelper;
 use common\interfaces\UserInterface;
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 use yii\web\IdentityInterface;
 
 /**
  * User model
  *
  * @property integer $id
- * @property string $username Имя
- * @property string $lastname Фамилия
+ * @property string $username Логин
+ * @property string $name Имя
+ * @property string $surname Фамилия
+ * @property string $email Email
+ * @property integer $status Статус
+ *
+ * @property string $auth_key
  * @property string $password_hash
  * @property string $password_reset_token
- * @property string $verification_token
- * @property string $email Email
- * @property string $auth_key
- * @property integer $status Статус
- * @property integer $created_at Создан
- * @property integer $updated_at Обновлен
+ * @property string|null $verification_token Подтверждение почты
+ * @property string|null $verification_email_at Дата подтверждения почты
+ *
+ * @property string|null $access_token Токен
+ * @property string|null $access_token_expiration Срок жизни токена
+ *
+ * @property string $created_at Создан
+ * @property string|null $updated_at Обновлен
  *
  * @property string $password write-only password
  *
- * @property array $group Группы пользователя.
- * @property array $statusText Текст статуса юзера.
+ * @property array $group Группа пользователя
+ * @property array $statusText Текст статуса юзера
  */
 class User extends ActiveRecord implements IdentityInterface, UserInterface
 {
@@ -46,8 +55,10 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
         self::STATUS_ACTIVE => 'Активен'
     ];
 
-    /** @var bool Проверка всех полей */
-    public $validateAll = true;
+    const VERIFICATIONS = [
+        'email' => 'verification_email_at',
+    ];
+
     public $password_new = '';
 
 
@@ -64,29 +75,23 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
      */
     public function rules()
     {
-        $rules = [
-            [['username', 'lastname', 'email', 'password_new'], 'filter', 'filter' => 'trim'],
+        return [
+            [['username', 'name', 'surname', 'email', 'password_new'], 'filter', 'filter' => 'trim'],
 
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => array_keys(self::STATUS_TEXT)],
 
-            [['username', 'lastname', 'email'], 'string', 'min' => 2, 'max' => 255],
-            [['email'], 'unique', 'targetClass' => '\common\models\User'],
+            [['username', 'name', 'surname', 'email', 'password_new'], 'string', 'min' => 2, 'max' => 255],
+            [['username'], 'match', 'pattern' => '/^\w+$/i', 'message' => 'Используйте латинские буквы.'],
+            [['name', 'surname'], 'match', 'pattern' => '/^[а-яё\s-]+$/iu', 'message' => 'Используйте русские буквы.'],
+            ['email', 'email'],
+            [['username', 'email'], 'unique'],
+            [['username', 'name', 'surname', 'email'], 'required'],
 
-            ['email', 'required'],
+            ['group', 'each', 'rule' => ['string']],
+
+            [['created_at', 'updated_at', 'verification_email_at'], 'safe'],
         ];
-
-        if ($this->validateAll) {
-            $rules[] = [['username', 'lastname'], 'required'];
-            $rules[] = [['username', 'lastname'], 'match', 'pattern' => '/^[а-яё\s-]+$/iu', 'message' => 'Используйте русские буквы.'];
-            $rules[] = ['email', 'email'];
-        }
-
-        if (!$this->isNewRecord) {
-            $rules[] = ['group', 'required'];
-        }
-
-        return $rules;
     }
 
     /**
@@ -95,12 +100,14 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     public function attributeLabels()
     {
         return [
-            'username' => 'Имя',
-            'lastname' => 'Фамилия',
+            'username' => 'Логин',
+            'name' => 'Имя',
+            'surname' => 'Фамилия',
             'email' => 'Email',
-            'group' => 'Группа',
-            'status' => 'Статус',
+            'verification_email_at' => 'Подтверждение почты',
             'password_new' => 'Новый пароль',
+            'status' => 'Статус',
+            'group' => 'Группа',
             'created_at' => 'Создан',
             'updated_at' => 'Обновлен',
         ];
@@ -145,7 +152,12 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        $user = static::findOne(['access_token' => $token, 'status' => self::STATUS_ACTIVE]);
+        if ($user && (YII_ENV_LOCAL || time() < strtotime($user->access_token_expiration))) {
+            return $user;
+        }
+
+        return null;
     }
 
     /**
@@ -162,11 +174,27 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     /**
      * Найти пользователя по email.
      * @param string $email
-     * @return User|null
+     * @return static|null
      */
     public static function findByEmail($email)
     {
         return static::findOne(['email' => $email, 'status' => User::STATUS_ACTIVE]);
+    }
+
+    /**
+     * Найти пользователя по username или email.
+     * @param string $login
+     * @return static|null
+     */
+    public static function findByLogin($login)
+    {
+        return static::find()
+            ->where(['or',
+                ['username' => $login],
+                ['email' => $login],
+            ])
+            ->andWhere(['status' => User::STATUS_ACTIVE])
+            ->one();
     }
 
     /**
@@ -286,12 +314,49 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
         $this->verification_token = Yii::$app->security->generateRandomString() . '_' . time();
     }
 
+    public function resetEmailVerificationToken()
+    {
+        $this->verification_token = null;
+    }
+
     /**
      * Removes password reset token
      */
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    /**
+     * Generates new access_token
+     */
+    public function generateAccessToken()
+    {
+        $transaction = Yii::$app->db->beginTransaction();
+
+        $access_token = CF::selectForUpdate($this, 'access_token');
+        $access_token_expiration = CF::selectForUpdate($this, 'access_token_expiration');
+
+        // Генерирует новый токен если его нет, либо если вышло время.
+        if (empty($access_token) || time() > strtotime($access_token_expiration)) {
+            $access_token = $this->access_token = Yii::$app->security->generateRandomString() . '_' . time();
+            $this->access_token_expiration = date('Y-m-d H:i:s', strtotime('+ 15 minutes'));
+            $this->save();
+            LogHelper::auth("{$this} generated new access_token: {$access_token}");
+        }
+
+        $transaction->commit();
+
+        return $access_token;
+    }
+
+    /**
+     * Removes access_token
+     */
+    public function removeAccessToken()
+    {
+        $this->access_token = null;
+        $this->access_token_expiration = null;
     }
 
 
@@ -341,8 +406,11 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
      * Назначаем группу юзеру.
      * @param array $roles
      */
-    public function setGroup(array $roles = [])
+    public function setGroup($roles = [])
     {
+        // Должен быть массив.
+        $roles = array_filter((array)$roles);
+
         $auth = Yii::$app->authManager;
 
         // Удаляем старые группы.
@@ -501,5 +569,73 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
         }
 
         return $query->all();
+    }
+
+    /**
+     * Проверенный пользователь с подтвержденными данными.
+     * @return bool
+     */
+    public function isVerified()
+    {
+        return $this->verification(self::VERIFICATIONS['email']);
+    }
+
+    /**
+     * Ссылка подтверждения почты.
+     * @return string
+     */
+    public function getVerifyEmailLink(): string
+    {
+        return Url::to("/verify-email/{$this->verification_token}/", true);
+    }
+
+    /**
+     * Подтверждение почты пользователя.
+     * @return bool
+     */
+    public function emailVerification()
+    {
+        $this->generateEmailVerificationToken();
+        $this->resetVerification(self::VERIFICATIONS['email']);
+        $this->save(false);
+
+        return Yii::$app->mailer->compose(
+            ['html' => 'emailVerify-html', 'text' => 'emailVerify-text'],
+            ['user' => $this],
+        )
+            ->setFrom([Yii::$app->params['senderEmail'] => Yii::$app->params['senderName']])
+            ->setTo($this->email)
+            ->setSubject('Подтверждение почты аккаунта ' . Yii::$app->params['senderName'])
+            ->send();
+    }
+
+    /**
+     * Дата подтверждения.
+     * Возвращает читабельную дату и время, либо null.
+     * @return string|null
+     */
+    public function verification(string $field)
+    {
+        return $this->{$field} ? date('d.m.Y, H:i:s', strtotime($this->{$field})) : null;
+    }
+
+    /**
+     * Установка даты подтверждения.
+     * @param string $field
+     * @return void
+     */
+    public function setVerification(string $field)
+    {
+        $this->{$field} = date('Y-m-d H:i:s');
+    }
+
+    /**
+     * Сброс даты подтверждения.
+     * @param string $field
+     * @return void
+     */
+    public function resetVerification(string $field)
+    {
+        $this->{$field} = null;
     }
 }

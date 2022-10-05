@@ -9,7 +9,7 @@ use yii\widgets\DetailView;
  * @var $model common\models\User
  */
 
-$this->title = $model->username . ' ' . $model->lastname;
+$this->title = $model->username;
 
 $this->params['breadcrumbs'][] = ['label' => 'Пользователи', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
@@ -43,23 +43,24 @@ YiiAsset::register($this);
         'attributes' => [
             'id',
             'username',
-            'lastname',
+            'name',
+            'surname',
 	        'email:email',
+	        'verification_email_at:datetime',
+            [
+                'attribute' => 'status',
+                'value' => $model->statusText
+            ],
 	        [
 		        'attribute' => 'group',
 		        'format' => 'raw',
 		        'value' => function ($model) {
-			        /** @var common\models\User $model */
 			        $str = '<ul>';
 			        foreach ($model->group as $groupName => $group) {
 				        $str .= Html::tag('li', Html::a($groupName, ['/user/role/update', 'alias' => $group]));
 			        }
 			        return $str;
 		        }
-	        ],
-	        [
-		        'attribute' => 'status',
-		        'value' => $model->statusText
 	        ],
 	        'created_at:date',
 	        'updated_at:datetime',

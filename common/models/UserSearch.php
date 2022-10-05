@@ -25,10 +25,10 @@ class UserSearch extends User
     public function rules()
     {
         return [
-            [['username', 'lastname', 'email'], 'filter', 'filter' => 'trim'],
+            [['username', 'name', 'surname', 'email'], 'filter', 'filter' => 'trim'],
 
             [['id', 'status'], 'integer'],
-            [['username', 'lastname', 'email', 'group', 'auth_key', 'password_hash', 'password_reset_token'], 'safe'],
+            [['username', 'name', 'surname', 'email', 'group'], 'safe'],
         ];
     }
 
@@ -86,7 +86,8 @@ class UserSearch extends User
 
         $query
             ->andFilterWhere(['ilike', 'user.username', $this->username])
-            ->andFilterWhere(['ilike', 'user.lastname', $this->lastname])
+            ->andFilterWhere(['ilike', 'user.name', $this->name])
+            ->andFilterWhere(['ilike', 'user.surname', $this->surname])
             ->andFilterWhere(['like', 'user.email', $this->email]);
 
         if (!Yii::$app->user->isSuperadmin()) {

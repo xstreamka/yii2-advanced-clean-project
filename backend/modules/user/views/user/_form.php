@@ -7,7 +7,7 @@ use yii\widgets\ActiveForm;
 
 /**
  * @var $this yii\web\View
- * @var $model common\models\User
+ * @var $model backend\modules\user\models\LoginForm|User
  * @var $form yii\widgets\ActiveForm
  * @var array $groups
  */
@@ -18,9 +18,11 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'username')->textInput(['maxlength' => true, 'placeholder' => 'Иван']) ?>
+    <?= $form->field($model, 'username')->textInput(['maxlength' => true, 'placeholder' => 'login']) ?>
 
-    <?= $form->field($model, 'lastname')->textInput(['maxlength' => true, 'placeholder' => 'Иванов']) ?>
+    <?= $form->field($model, 'name')->textInput(['maxlength' => true, 'placeholder' => 'Иван']) ?>
+
+    <?= $form->field($model, 'surname')->textInput(['maxlength' => true, 'placeholder' => 'Иванов']) ?>
 
     <?= $form->field($model, 'email')->textInput(['maxlength' => true, 'placeholder' => 'i.ivanov@agatgroup.com']) ?>
 

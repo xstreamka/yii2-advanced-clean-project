@@ -30,12 +30,15 @@ createdb -U yii2 yii2
 
 # заливаем данные
 psql -U yii2 -d yii2 -f yii2.sql
+
+# создаем таблицу user и добавляем суперпользователя
+php yii migrate
 ```
 
 Админка и суперпользователь:
 ```
 Адрес: /admin/
-Логин: admin@yiiframework.com
+Логин: admin
 Пароль: admin
 ```
 
