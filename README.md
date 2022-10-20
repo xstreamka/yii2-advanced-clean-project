@@ -22,14 +22,14 @@ php init --env=Development --overwrite=All
 <br>
 В корне лежит файл БД `yii2.sql`, его следует удалить после:
 ```bash
-# создаем пользователя yii2
-createuser -U postgres -d yii2
+# создаем пользователя yii2 + вводим его пароль.
+createuser -U postgres -P -d yii2
 
-# создаем БД
-createdb -U yii2 yii2
+# создаем БД yii2 с владельцем yii2.
+createdb -U postgres -O yii2 yii2
 
 # заливаем данные
-psql -U yii2 -d yii2 -f yii2.sql
+psql -U postgres -d yii2 -f yii2.sql
 
 # создаем таблицу user и добавляем суперпользователя
 php yii migrate

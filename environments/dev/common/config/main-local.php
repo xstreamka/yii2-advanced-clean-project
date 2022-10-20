@@ -6,7 +6,7 @@ return [
             'class' => \yii\db\Connection::class,
             'dsn' => 'pgsql:host=localhost;dbname=yii2',
             'username' => 'yii2',
-            'password' => '',
+            'password' => 'yii2',
             'charset' => 'utf8',
         ],
         'mailer' => [
