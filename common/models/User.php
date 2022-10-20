@@ -328,26 +328,26 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     }
 
     /**
-     * Generates new access_token
+     * Generates access_token.
      */
     public function generateAccessToken()
     {
         $transaction = Yii::$app->db->beginTransaction();
 
-        $access_token = CF::selectForUpdate($this, 'access_token');
-        $access_token_expiration = CF::selectForUpdate($this, 'access_token_expiration');
+        $accessToken = CF::selectForUpdate($this, 'access_token');
+        $accessTokenExpiration = CF::selectForUpdate($this, 'access_token_expiration');
 
         // Генерирует новый токен если его нет, либо если вышло время.
-        if (empty($access_token) || time() > strtotime($access_token_expiration)) {
-            $access_token = $this->access_token = Yii::$app->security->generateRandomString() . '_' . time();
-            $this->access_token_expiration = date('Y-m-d H:i:s', strtotime('+ 15 minutes'));
-            $this->save();
-            LogHelper::auth("{$this} generated new access_token: {$access_token}");
+        if (empty($accessToken) || time() > strtotime($accessTokenExpiration)) {
+            $accessToken = $this->access_token = Yii::$app->security->generateRandomString() . '_' . time();
+            $accessTokenExpiration = $this->access_token_expiration = date('Y-m-d H:i:s', strtotime('+ 15 minutes'));
+            $this->save(false);
+            LogHelper::auth("{$this} generated new access_token: {$accessToken}, access_token_expiration: {$accessTokenExpiration}");
         }
 
         $transaction->commit();
 
-        return $access_token;
+        return $accessToken;
     }
 
     /**
