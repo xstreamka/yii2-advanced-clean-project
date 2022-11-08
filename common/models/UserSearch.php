@@ -28,7 +28,7 @@ class UserSearch extends User
             [['username', 'name', 'surname', 'email'], 'filter', 'filter' => 'trim'],
 
             [['id', 'status'], 'integer'],
-            [['username', 'name', 'surname', 'email', 'group'], 'safe'],
+            [['username', 'name', 'surname', 'email', 'group', 'created_at'], 'safe'],
         ];
     }
 
@@ -94,9 +94,18 @@ class UserSearch extends User
             $query->andFilterWhere(['not', ['auth_assignment.item_name' => 'superadmin']]);
         }
 
+        if (!empty($this->created_at)) {
+            $time = strtotime($this->created_at);
+            $from = date('Y-m-d 00:00:00', $time);
+            $to = date('Y-m-d 23:59:59', $time);
+            $query
+                ->andFilterWhere(['>=', 'user.created_at', $from])
+                ->andFilterWhere(['<=', 'user.created_at', $to]);
+        }
+
         // По умолчанию показываем сверху свежие данные.
         if (empty($params['sort'])) {
-            $query->orderBy(['created_at' => SORT_ASC]);
+            $query->orderBy(['user.created_at' => SORT_ASC]);
         }
 
         return $dataProvider;

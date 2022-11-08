@@ -1,3 +1,17 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css");
+
+body {
+    font-size: 15px;
+    line-height: 1.42857143;
+    color: #333333;
+    background-color: #fff;
+}
+
+a {
+    color: #337ab7;
+    text-decoration: none;
+}
+
 main > .container {
     padding: 70px 15px 20px;
 }
@@ -88,3 +102,86 @@ a.desc:after {
 .nav > li > form > button.logout:focus {
     outline: none;
 }
+
+
+
+
+
+
+/*Фича для сброса параметров фильтра админки.*/
+.xs-clear-filter {
+    position: relative;
+}
+
+.xs-clear-filter input {
+    padding-right: 30px;
+}
+
+.xs-clear-filter .xs-clear {
+    display: none;
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    color: red;
+    cursor: pointer;
+}
+
+.xs-clear-filter .xs-clear.on {
+    display: block;
+}
+
+
+
+
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-control,
+.bootstrap-select>.dropdown-toggle,
+.bootstrap-select .dropdown-menu li a span.text {
+    font-size: 14px;
+}
+
+.form-control,
+.bootstrap-select>.dropdown-toggle {
+    color: #555555;
+}
+
+.form-inline .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -5px;
+    margin-left: -5px;
+}
+
+.form-row > .col {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+
+
+.breadcrumb {
+    padding: 8px 15px;
+    margin-bottom: 20px;
+    list-style: none;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+

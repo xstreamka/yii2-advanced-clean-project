@@ -68,7 +68,18 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $str;
                 }
             ],
-            'created_at:date',
+            [
+                'attribute' => 'created_at',
+                'value' => 'created_at',
+                'format' => 'date',
+                'filter' => \yii\jui\DatePicker::widget([
+                    'model' => $searchModel,
+                    'attribute' => 'created_at',
+                    'language' => 'ru',
+                    'dateFormat' => 'dd.MM.yyyy',
+                    'options' => ['class' => 'form-control'],
+                ]),
+            ],
             [
                 'class' => 'yii\grid\ActionColumn',
             ]
