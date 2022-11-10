@@ -139,6 +139,10 @@ a.desc:after {
     margin-bottom: 1rem;
 }
 
+.has-error .help-block {
+    color: #dc3545;
+}
+
 .form-control,
 .bootstrap-select>.dropdown-toggle,
 .bootstrap-select .dropdown-menu li a span.text {
