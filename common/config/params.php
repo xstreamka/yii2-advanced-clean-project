@@ -4,7 +4,7 @@ return [
     'supportEmail' => 'support@example.com', // группа рассылки всем разработчикам
     'senderEmail' => 'noreply@example.com',
     'senderName' => 'Example.com mailer',
-    'errorEmail' => 'error@example.com', // ошибки на почту
+    'errorEmail' => 'error@example.com', // почта, от которой будут приходить ошибки
     'user.passwordResetTokenExpire' => 3600,
     'user.passwordMinLength' => 8,
 ];
