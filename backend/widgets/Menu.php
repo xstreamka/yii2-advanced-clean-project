@@ -135,7 +135,7 @@ CSS;
         if (YII_ENV_LOCAL) {
             $menuItems[] = [
                 'label' => 'Gii',
-                'url' => ['../gii'],
+                'url' => '/gii/',
                 'linkOptions' => ['target' => '_blank'],
             ];
         }
