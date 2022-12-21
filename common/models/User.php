@@ -2,6 +2,7 @@
 
 namespace common\models;
 
+use backend\modules\user\models\AuthAssignment;
 use common\helpers\CF;
 use common\helpers\DevHelper;
 use common\helpers\LogHelper;
@@ -38,6 +39,7 @@ use yii\web\IdentityInterface;
  *
  * @property array $group Группа пользователя
  * @property array $statusText Текст статуса юзера
+ * @property string $initials ФИО
  */
 class User extends ActiveRecord implements IdentityInterface, UserInterface
 {
@@ -80,6 +82,7 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
 
             ['status', 'default', 'value' => self::STATUS_INACTIVE],
             ['status', 'in', 'range' => array_keys(self::STATUS_TEXT)],
+            [['status'], 'integer'],
 
             [['username', 'name', 'surname', 'email', 'password_new'], 'string', 'min' => 2, 'max' => 255],
             [['username'], 'match', 'pattern' => '/^\w+$/i', 'message' => 'Используйте латинские буквы.'],
@@ -137,6 +140,15 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     public function __toString()
     {
         return "#{$this->id} {$this->username} {$this->email}";
+    }
+
+    /**
+     * {@inheritdoc}
+     * @return UserQuery the active query used by this AR class.
+     */
+    public static function find()
+    {
+        return new UserQuery(get_called_class());
     }
 
     /**
@@ -243,6 +255,16 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
         $timestamp = (int) substr($token, strrpos($token, '_') + 1);
         $expire = Yii::$app->params['user.passwordResetTokenExpire'];
         return $timestamp + $expire >= time();
+    }
+
+    /**
+     * Gets query for [[AuthAssignment]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAuthAssignment()
+    {
+        return $this->hasMany(AuthAssignment::class, ['user_id' => 'id']);
     }
 
     /**
@@ -561,8 +583,7 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     {
         $query = self::find()
             ->where(['status' => User::STATUS_ACTIVE])
-            ->innerJoin('auth_assignment', '{{auth_assignment.user_id}} = {{user.id}}')
-            ->andWhere(['auth_assignment.item_name' => $group]);
+            ->authAssignment($group);
 
         if (!$obj) {
             $query->asArray();
@@ -637,5 +658,14 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     public function resetVerification(string $field)
     {
         $this->{$field} = null;
+    }
+
+    /**
+     * ФИО.
+     * @return string
+     */
+    public function getInitials(): string
+    {
+        return "{$this->name} {$this->surname}";
     }
 }

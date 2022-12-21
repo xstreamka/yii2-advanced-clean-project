@@ -52,22 +52,13 @@ class UserSearch extends User
     {
         $query = User::find();
 
-        $query->leftJoin('auth_assignment', '{{auth_assignment.user_id}} = {{user.id}}')->distinct();
+        $query->joinWith('authAssignment')->distinct();
 
         // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
-
-        $modelName = $this->formName();
-        if (!empty($params[$modelName])) {
-            $params = [
-                $modelName => array_filter($params[$modelName], function ($value) {
-                    return $value !== '';
-                })
-            ];
-        }
 
         $this->load($params);
 
@@ -81,7 +72,7 @@ class UserSearch extends User
         $query->andFilterWhere([
             'user.id' => $this->id,
             'user.status' => $this->status,
-            'auth_assignment.item_name' => $params['UserSearch']['group'] ?? null
+            'auth_assignment.item_name' => $this->group
         ]);
 
         $query
@@ -96,14 +87,11 @@ class UserSearch extends User
 
         if (!empty($this->created_at)) {
             $time = strtotime($this->created_at);
-            $from = date('Y-m-d 00:00:00', $time);
-            $to = date('Y-m-d 23:59:59', $time);
             $query
-                ->andFilterWhere(['>=', 'user.created_at', $from])
-                ->andFilterWhere(['<=', 'user.created_at', $to]);
+                ->andFilterWhere(['>=', 'user.created_at', date('Y-m-d 00:00:00', $time)])
+                ->andFilterWhere(['<=', 'user.created_at', date('Y-m-d 23:59:59', $time)]);
         }
 
-        // По умолчанию показываем сверху свежие данные.
         if (empty($params['sort'])) {
             $query->orderBy(['user.created_at' => SORT_ASC]);
         }
