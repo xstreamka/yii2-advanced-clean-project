@@ -10,6 +10,7 @@ namespace common\helpers;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\helpers\VarDumper;
 
 class DevHelper
 {
@@ -27,7 +28,7 @@ class DevHelper
             if ($addInfo instanceof \Exception) {
                 $addInfo = self::getExceptionText($addInfo);
             } elseif (!is_string($addInfo)) {
-                $addInfo = var_export($addInfo, true);
+                $addInfo = VarDumper::export($addInfo);
             }
             $addInfo = "<pre>{$addInfo}</pre>";
         }
@@ -93,6 +94,6 @@ class DevHelper
 
         return
             'Ошибка создания "' . ($model instanceof ActiveRecord ? $model->tableName() : null) . '".'
-            . '<br><br><pre>' . var_export($errorMsg, true) . '</pre>';
+            . '<br><br><pre>' . VarDumper::export($errorMsg) . '</pre>';
     }
 }
