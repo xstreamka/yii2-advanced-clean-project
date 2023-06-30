@@ -421,7 +421,11 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
      */
     public function getGroup()
     {
-        return ArrayHelper::map(Yii::$app->authManager->getRolesByUser($this->id), 'description', 'name');
+        $role = Yii::$app->cache->getOrSet([self::class, __FUNCTION__, $this->id], function () {
+            return Yii::$app->authManager->getRolesByUser($this->id);
+        }, 60);
+
+        return ArrayHelper::map($role, 'description', 'name');
     }
 
     /**
