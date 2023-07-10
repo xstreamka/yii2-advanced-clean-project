@@ -8,6 +8,7 @@ use common\helpers\DevHelper;
 use common\helpers\LogHelper;
 use common\interfaces\UserInterface;
 use Yii;
+use yii\caching\TagDependency;
 use yii\db\ActiveRecord;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
@@ -423,16 +424,16 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     {
         $role = Yii::$app->cache->getOrSet([self::class, __FUNCTION__, $this->id], function () {
             return Yii::$app->authManager->getRolesByUser($this->id);
-        }, 60);
+        }, 60, new TagDependency(['tags' => "user-getGroup-{$this->id}"]));
 
         return ArrayHelper::map($role, 'description', 'name');
     }
 
     /**
      * Назначаем группу юзеру.
-     * @param array $roles
+     * @param string|array $roles
      */
-    public function setGroup($roles = [])
+    public function setGroup(string|array $roles = [])
     {
         // Должен быть массив.
         $roles = array_filter((array)$roles);
@@ -450,13 +451,16 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
             $newRole = $auth->getRole($role);
             $auth->assign($newRole, $this->id);
         }
+
+        // Очищаем кеш.
+        TagDependency::invalidate(Yii::$app->cache, "user-getGroup-{$this->id}");
     }
 
     /**
      * Добавляем группу юзеру.
      * @param string|array $roles
      */
-    public function addGroup($roles)
+    public function addGroup(string|array $roles)
     {
         $roles = array_unique(array_merge($this->group, (array)$roles));
 
