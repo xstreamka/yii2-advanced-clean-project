@@ -82,11 +82,11 @@ CSS;
                 $role = [
                     [
                         'label' => 'Группы',
-                        'url' => ['/user/role'],
+                        'url' => ['/user/role/index'],
                     ],
                     [
                         'label' => 'Разрешения',
-                        'url' => ['/user/permission'],
+                        'url' => ['/user/permission/index'],
                     ],
                 ];
             }
@@ -110,23 +110,23 @@ CSS;
                 'items' => [
                     [
                         'label' => 'Назначения',
-                        'url' => ['/rbac/assignment'],
+                        'url' => ['/rbac/assignment/index'],
                     ],
                     [
                         'label' => 'Роли',
-                        'url' => ['/rbac/role'],
+                        'url' => ['/rbac/role/index'],
                     ],
                     [
                         'label' => 'Разрешения',
-                        'url' => ['/rbac/permission'],
+                        'url' => ['/rbac/permission/index'],
                     ],
                     [
                         'label' => 'Правила',
-                        'url' => ['/rbac/rule'],
+                        'url' => ['/rbac/rule/index'],
                     ],
                     [
                         'label' => 'Маршруты',
-                        'url' => ['/rbac/route'],
+                        'url' => ['/rbac/route/index'],
                     ],
                 ]
             ];
