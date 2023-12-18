@@ -70,6 +70,7 @@ class RoleController extends \yii\web\Controller
 
         $auth = Yii::$app->authManager;
         $permissions = ArrayHelper::map($auth->getPermissions(), 'name', 'description');
+        asort($permissions);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $model->createGroup();
@@ -99,6 +100,7 @@ class RoleController extends \yii\web\Controller
         $auth = Yii::$app->authManager;
         $role = $auth->getRole($alias);
         $permissions = ArrayHelper::map($auth->getPermissions(), 'name', 'description');
+        asort($permissions);
 
         if (!$role) throw new NotFoundHttpException('Запрошенная страница не найдена.');
 

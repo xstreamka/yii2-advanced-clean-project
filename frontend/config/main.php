@@ -98,9 +98,6 @@ return [
             'linkAssets' => true,
             'appendTimestamp' => true,
         ],
-        'authManager' => [
-            'class' => 'yii\rbac\DbManager',
-        ],
     ],
     'params' => $params,
 ];

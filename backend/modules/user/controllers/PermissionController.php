@@ -14,6 +14,7 @@ use Yii;
 use yii\data\ArrayDataProvider;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -57,9 +58,11 @@ class PermissionController extends Controller
     {
         $auth = Yii::$app->authManager;
         $filter = Yii::$app->request->get('filter') ?? null;
-        $permission = $filter ? array_values($auth->getPermissionsByRole($filter)) : array_values($auth->getPermissions());
+        $permissions = $filter ? $auth->getPermissionsByRole($filter) : $auth->getPermissions();
+        ArrayHelper::multisort($permissions, 'description');
+
         $dataProvider = new ArrayDataProvider([
-            'allModels' => $permission,
+            'allModels' => $permissions,
         ]);
 
         return $this->render('index', [

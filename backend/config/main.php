@@ -91,9 +91,6 @@ return [
             'linkAssets' => true,
             'appendTimestamp' => true,
         ],
-        'authManager' => [
-            'class' => 'yii\rbac\DbManager',
-        ],
     ],
     'on beforeAction' => function (\yii\base\ActionEvent $event) {
         $user = Yii::$app->user;
@@ -114,5 +111,12 @@ return [
             Yii::$app->end();
         }
     },
+    'container' => [
+        'definitions' => [
+            \yii\widgets\LinkPager::class => [
+                'class' => \yii\bootstrap5\LinkPager::class,
+            ],
+        ],
+    ],
     'params' => $params,
 ];

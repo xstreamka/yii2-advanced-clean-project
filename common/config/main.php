@@ -60,6 +60,9 @@ return [
                 ],
             ],
         ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
     ],
     'language' => 'ru-RU',
     'sourceLanguage' => 'ru-RU',
