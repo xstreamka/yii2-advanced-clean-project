@@ -27,13 +27,24 @@ class UserController extends Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['index', 'view', 'create', 'update', 'delete'],
+                        'actions' => ['index', 'view'],
                         'allow' => true,
-                        'roles' => ['admin', 'change_user'],
+                        'roles' => ['user_view'],
                     ],
                     [
+                        'actions' => ['create'],
                         'allow' => true,
-                        'roles' => ['superadmin']
+                        'roles' => ['user_create'],
+                    ],
+                    [
+                        'actions' => ['update'],
+                        'allow' => true,
+                        'roles' => ['user_update'],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['user_delete'],
                     ],
                 ],
             ],

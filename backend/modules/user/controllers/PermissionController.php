@@ -31,13 +31,24 @@ class PermissionController extends Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['index', 'create', 'update', 'delete'],
+                        'actions' => ['index'],
                         'allow' => true,
-                        'roles' => ['admin'],
+                        'roles' => ['user_permission_view'],
                     ],
                     [
+                        'actions' => ['create'],
                         'allow' => true,
-                        'roles' => ['superadmin']
+                        'roles' => ['user_permission_create'],
+                    ],
+                    [
+                        'actions' => ['update'],
+                        'allow' => true,
+                        'roles' => ['user_permission_update'],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['user_permission_delete'],
                     ],
                 ],
             ],

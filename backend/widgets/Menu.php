@@ -76,33 +76,44 @@ CSS;
             ],
         ];
 
-        if ($user->isAdmin() || $user->can('change_user')) {
+        /**
+         * User.
+         */
+        $userItems = [];
 
-            if ($user->isAdmin()) {
-                $role = [
-                    [
-                        'label' => 'Группы',
-                        'url' => ['/user/role/index'],
-                    ],
-                    [
-                        'label' => 'Разрешения',
-                        'url' => ['/user/permission/index'],
-                    ],
-                ];
-            }
-
-            $menuItems[] = [
-                'label' => 'Пользователи',
-                'url' => ['/user'],
-                'items' => array_merge([
-                    [
-                        'label' => 'Список пользователей',
-                        'url' => ['/user'],
-                    ],
-                ], $role ?? [])
+        if ($user->can('user_view')) {
+            $userItems[] = [
+                'label' => 'Список пользователей',
+                'url' => ['/user/user/index'],
             ];
         }
 
+        if ($user->can('user_role_view')) {
+            $userItems[] = [
+                'label' => 'Группы',
+                'url' => ['/user/role/index'],
+            ];
+        }
+
+        if ($user->can('user_permission_view')) {
+            $userItems[] = [
+                'label' => 'Разрешения',
+                'url' => ['/user/permission/index'],
+            ];
+        }
+
+        // User.
+        if (!empty($userItems)) {
+            $menuItems[] = [
+                'label' => 'Пользователи',
+                'url' => ['/user'],
+                'items' => $userItems,
+            ];
+        }
+
+        /**
+         * Rbac.
+         */
         if ($user->isSuperadmin()) {
             $menuItems[] = [
                 'label' => 'Rbac',
@@ -132,14 +143,45 @@ CSS;
             ];
         }
 
+        /**
+         * New.
+         */
+        $agDevItems = [];
+
+        if ($user->can('new')) {
+            $agDevItems[] = [
+                'label' => 'New item',
+                'url' => ['/'],
+            ];
+        }
+
+        /**
+         * Продолжение меню.
+         */
+
+        // New.
+        if (!empty($agDevItems)) {
+            $menuItems[] = [
+                'label' => 'New',
+                'url' => ['/'],
+                'items' => $agDevItems,
+            ];
+        }
+
+        /**
+         * Gii.
+         */
         if (YII_ENV_LOCAL) {
             $menuItems[] = [
                 'label' => 'Gii',
-                'url' => '/gii/',
+                'url' => ['../gii'],
                 'linkOptions' => ['target' => '_blank'],
             ];
         }
 
+        /**
+         * Кеш.
+         */
         if ($user->can('clear_cache')) {
             $menuItems[] = [
                 'label' => 'Очистить кэш',
@@ -147,6 +189,9 @@ CSS;
             ];
         }
 
+        /**
+         * Выход.
+         */
         if (!$user->isGuest) {
             $menuItems[] = [
                 'label' => 'Выйти (' . $user->identity->username . ')',

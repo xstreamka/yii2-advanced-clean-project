@@ -13,7 +13,7 @@ return [
             'defaultDuration' => 3600,
         ],
         'cacheFrontend' => [
-            'class' => 'yii\caching\FileCache',
+            'class' => \yii\caching\FileCache::class,
             'cachePath' => Yii::getAlias('@frontend') . '/runtime/cache'
         ],
         'i18n' => [
@@ -67,5 +67,5 @@ return [
     'language' => 'ru-RU',
     'sourceLanguage' => 'ru-RU',
     'timeZone' => 'Europe/Moscow',
-    'name' => 'Yii2',
+    'name' => 'Project name',
 ];

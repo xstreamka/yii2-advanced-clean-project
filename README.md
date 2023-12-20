@@ -7,7 +7,7 @@
 После копирования проекта к себе, необходимо выполнить:
 ```bash
 # качаем зависимости
-composer install
+composer install --ignore-platform-reqs
 
 # генерируем yii2
 php init --env=Development --overwrite=All
@@ -19,8 +19,6 @@ php init --env=Development --overwrite=All
 * common/config/params-local.php
 
 Далее нужно создать пользователя `yii2` в PostgreSQL.
-<br>
-В корне лежит файл БД `yii2.sql`, его следует удалить после:
 ```bash
 # создаем пользователя yii2 + вводим его пароль.
 createuser -U postgres -P -d yii2
@@ -28,9 +26,8 @@ createuser -U postgres -P -d yii2
 # создаем БД yii2 с владельцем yii2.
 createdb -U postgres -O yii2 yii2
 
-# заливаем данные
-psql -U postgres -d yii2 -f yii2.sql
-
+# rbac init
+php yii migrate --migrationPath=@yii/rbac/migrations
 # создаем таблицу user и добавляем суперпользователя
 php yii migrate
 ```

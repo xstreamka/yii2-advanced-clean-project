@@ -10,8 +10,65 @@ class m220822_153844_init extends Migration
 {
     public $tableName = '{{%user}}';
 
-    public function up()
+    /** @var \yii\rbac\DbManager */
+    private $authManager;
+    private $roles;
+    private $permissions;
+
+    public function init()
     {
+        $this->authManager = Yii::$app->authManager;
+
+        // Роли.
+        $this->roles = [
+            'superadmin' => 'Суперадмин',
+            'admin' => 'Админ',
+            'moderator' => 'Модератор',
+            'user' => 'Пользователь',
+        ];
+
+        // Разрешения.
+        $this->permissions = [
+            'dashboard' => 'Админ панель',
+            'clear_cache' => 'Очистка кеша',
+
+            'user_view' => 'Пользователи (просмотр)',
+            'user_create' => 'Пользователи (создание)',
+            'user_update' => 'Пользователи (изменение)',
+            'user_delete' => 'Пользователи (удаление)',
+
+            'user_role_view' => 'Группы (просмотр)',
+            'user_role_create' => 'Группы (создание)',
+            'user_role_update' => 'Группы (изменение)',
+            'user_role_delete' => 'Группы (удаление)',
+
+            'user_permission_view' => 'Разрешения (просмотр)',
+            'user_permission_create' => 'Разрешения (создание)',
+            'user_permission_update' => 'Разрешения (изменение)',
+            'user_permission_delete' => 'Разрешения (удаление)',
+        ];
+    }
+
+    public function safeUp()
+    {
+        // Фикс user_id таблицы auth_assignment.
+        $this->execute('ALTER TABLE auth_assignment ALTER COLUMN user_id TYPE integer USING user_id::integer');
+
+        // Добавляем роли.
+        foreach ($this->roles as $roleName => $roleDescription) {
+            $newRole = $this->authManager->createRole($roleName);
+            $newRole->description = $roleDescription;
+            $this->authManager->add($newRole);
+        }
+
+        // Добавляем разрешения.
+        foreach ($this->permissions as $permissionName => $permissionDescription) {
+            $newPermission = $this->authManager->createPermission($permissionName);
+            $newPermission->description = $permissionDescription;
+            $this->authManager->add($newPermission);
+        }
+
+        // Создаем табличку пользователей.
         $this->createTable($this->tableName, [
             'id' => $this->primaryKey()->notNull()->defaultValue("nextval('{$this->tableName}_id_seq'::regclass)")->comment('ID'),
             'username' => $this->string()->notNull()->unique()->comment('Логин'),
@@ -32,7 +89,6 @@ class m220822_153844_init extends Migration
             'created_at' => $this->timestamp()->notNull()->comment('Создан'),
             'updated_at' => $this->timestamp()->null()->comment('Обновлен'),
         ]);
-
         $this->addCommentOnTable($this->tableName, 'Пользователи');
 
         // Наполняем дефолтные данные.
@@ -48,10 +104,27 @@ class m220822_153844_init extends Migration
             'created_at' => date('Y-m-d H:i:s'),
         ]);
 
+        // Добавляем права.
+        $superadmin = $this->authManager->getRole('superadmin');
+        $this->authManager->assign($superadmin, 1);
     }
 
-    public function down()
+    public function safeDown()
     {
+        $this->execute('ALTER TABLE auth_assignment ALTER COLUMN user_id TYPE varchar(64) USING user_id::varchar');
+
+        foreach ($this->permissions as $permissionName => $permissionDescription) {
+            if ($permission = $this->authManager->getPermission($permissionName)) {
+                $this->authManager->remove($permission);
+            }
+        }
+
+        foreach ($this->roles as $roleName => $roleDescription) {
+            if ($role = $this->authManager->getRole($roleName)) {
+                $this->authManager->remove($role);
+            }
+        }
+
         $this->dropTable($this->tableName);
     }
 }

@@ -24,13 +24,24 @@ class RoleController extends \yii\web\Controller
                 'class' => AccessControl::class,
                 'rules' => [
                     [
-                        'actions' => ['index', 'create', 'update', 'delete'],
+                        'actions' => ['index'],
                         'allow' => true,
-                        'roles' => ['admin'],
+                        'roles' => ['user_role_view'],
                     ],
                     [
+                        'actions' => ['create'],
                         'allow' => true,
-                        'roles' => ['superadmin']
+                        'roles' => ['user_role_create'],
+                    ],
+                    [
+                        'actions' => ['update'],
+                        'allow' => true,
+                        'roles' => ['user_role_update'],
+                    ],
+                    [
+                        'actions' => ['delete'],
+                        'allow' => true,
+                        'roles' => ['user_role_delete'],
                     ],
                 ],
             ],
