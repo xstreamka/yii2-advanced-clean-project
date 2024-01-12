@@ -34,12 +34,6 @@ return [
             'baseUrl' => '/admin',
             'enableCsrfValidation' => true,
         ],
-        'user' => [
-            'class' => 'common\components\UserComponent',
-            'identityClass' => 'common\models\User',
-            'enableAutoLogin' => true,
-            'identityCookie' => ['name' => '_identity-yii2', 'httpOnly' => true],
-        ],
         'session' => [
             // this is the name of the session cookie used for login on the backend
             'name' => 'yii2-advanced',
@@ -95,14 +89,14 @@ return [
     'on beforeAction' => function (\yii\base\ActionEvent $event) {
         $user = Yii::$app->user;
         // Глобальная проверка на права админки.
-        if (!$user->isGuest && !$user->can('dashboard')) {
+        if (!$user->isGuest && !$user->can('system_dashboard')) {
             Yii::$app->response->redirect('/');
             Yii::$app->end();
         }
         // Очистка всего кеша.
         if (
             Yii::$app->request->get('clear_cache')
-            && $user->can('clear_cache')
+            && $user->can('system_clear_cache')
         ) {
             Yii::$app->cache->flush();
             Yii::$app->cacheFrontend->flush();

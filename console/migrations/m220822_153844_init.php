@@ -29,23 +29,23 @@ class m220822_153844_init extends Migration
 
         // Разрешения.
         $this->permissions = [
-            'dashboard' => 'Админ панель',
-            'clear_cache' => 'Очистка кеша',
+            'system_dashboard' => 'Админ панель',
+            'system_clear_cache' => 'Очистка кеша',
 
-            'user_view' => 'Пользователи (просмотр)',
-            'user_create' => 'Пользователи (создание)',
-            'user_update' => 'Пользователи (изменение)',
-            'user_delete' => 'Пользователи (удаление)',
+            'system_user_view' => 'Пользователи (просмотр)',
+            'system_user_create' => 'Пользователи (создание)',
+            'system_user_update' => 'Пользователи (изменение)',
+            'system_user_delete' => 'Пользователи (удаление)',
 
-            'user_role_view' => 'Группы (просмотр)',
-            'user_role_create' => 'Группы (создание)',
-            'user_role_update' => 'Группы (изменение)',
-            'user_role_delete' => 'Группы (удаление)',
+            'system_user_role_view' => 'Группы (просмотр)',
+            'system_user_role_create' => 'Группы (создание)',
+            'system_user_role_update' => 'Группы (изменение)',
+            'system_user_role_delete' => 'Группы (удаление)',
 
-            'user_permission_view' => 'Разрешения (просмотр)',
-            'user_permission_create' => 'Разрешения (создание)',
-            'user_permission_update' => 'Разрешения (изменение)',
-            'user_permission_delete' => 'Разрешения (удаление)',
+            'system_user_permission_view' => 'Разрешения (просмотр)',
+            'system_user_permission_create' => 'Разрешения (создание)',
+            'system_user_permission_update' => 'Разрешения (изменение)',
+            'system_user_permission_delete' => 'Разрешения (удаление)',
         ];
     }
 

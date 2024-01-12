@@ -20,12 +20,6 @@ return [
                 'application/json' => 'yii\web\JsonParser'
             ]
         ],
-        'user' => [
-            'class' => 'common\components\UserComponent',
-            'identityClass' => 'common\models\User',
-            'enableAutoLogin' => true,
-            'identityCookie' => ['name' => '_identity-yii2', 'httpOnly' => true],
-        ],
         'session' => [
             // this is the name of the session cookie used for login on the frontend
             'name' => 'yii2-advanced',

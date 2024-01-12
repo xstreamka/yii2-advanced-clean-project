@@ -26,22 +26,22 @@ class RoleController extends \yii\web\Controller
                     [
                         'actions' => ['index'],
                         'allow' => true,
-                        'roles' => ['user_role_view'],
+                        'roles' => ['system_user_role_view'],
                     ],
                     [
                         'actions' => ['create'],
                         'allow' => true,
-                        'roles' => ['user_role_create'],
+                        'roles' => ['system_user_role_create'],
                     ],
                     [
                         'actions' => ['update'],
                         'allow' => true,
-                        'roles' => ['user_role_update'],
+                        'roles' => ['system_user_role_update'],
                     ],
                     [
                         'actions' => ['delete'],
                         'allow' => true,
-                        'roles' => ['user_role_delete'],
+                        'roles' => ['system_user_role_delete'],
                     ],
                 ],
             ],
@@ -80,8 +80,6 @@ class RoleController extends \yii\web\Controller
         $model = new UserRoleForm();
 
         $auth = Yii::$app->authManager;
-        $permissions = ArrayHelper::map($auth->getPermissions(), 'name', 'description');
-        asort($permissions);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $model->createGroup();
@@ -94,7 +92,7 @@ class RoleController extends \yii\web\Controller
 
         return $this->render('create', [
             'model' => $model,
-            'permissions' => $permissions,
+            'permissions' => $auth->getPermissionsList(),
         ]);
     }
 
@@ -110,8 +108,6 @@ class RoleController extends \yii\web\Controller
 
         $auth = Yii::$app->authManager;
         $role = $auth->getRole($alias);
-        $permissions = ArrayHelper::map($auth->getPermissions(), 'name', 'description');
-        asort($permissions);
 
         if (!$role) throw new NotFoundHttpException('Запрошенная страница не найдена.');
 
@@ -134,7 +130,7 @@ class RoleController extends \yii\web\Controller
 
         return $this->render('update', [
             'model' => $model,
-            'permissions' => $permissions,
+            'permissions' => $auth->getPermissionsList(),
         ]);
     }
 

@@ -8,6 +8,12 @@ return [
     ],
     'vendorPath' => dirname(dirname(__DIR__)) . '/vendor',
     'components' => [
+        'user' => [
+            'class' => \common\components\UserComponent::class,
+            'identityClass' => 'common\models\User',
+            'enableAutoLogin' => true,
+            'identityCookie' => ['name' => '_identity-yii2', 'httpOnly' => true],
+        ],
         'cache' => [
             'class' => \yii\caching\FileCache::class,
             'defaultDuration' => 3600,
@@ -60,9 +66,7 @@ return [
                 ],
             ],
         ],
-        'authManager' => [
-            'class' => 'yii\rbac\DbManager',
-        ],
+        'authManager' => \common\components\AuthManagerComponent::class,
     ],
     'language' => 'ru-RU',
     'sourceLanguage' => 'ru-RU',

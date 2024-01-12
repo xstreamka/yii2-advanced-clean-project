@@ -9,7 +9,7 @@ use yii\widgets\DetailView;
  * @var $model common\models\User
  */
 
-$this->title = $model->username;
+$this->title = $model->initials;
 
 $this->params['breadcrumbs'][] = ['label' => 'Пользователи', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;

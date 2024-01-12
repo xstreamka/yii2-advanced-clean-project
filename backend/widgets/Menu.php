@@ -81,21 +81,21 @@ CSS;
          */
         $userItems = [];
 
-        if ($user->can('user_view')) {
+        if ($user->can('system_user_view')) {
             $userItems[] = [
                 'label' => 'Список пользователей',
                 'url' => ['/user/user/index'],
             ];
         }
 
-        if ($user->can('user_role_view')) {
+        if ($user->can('system_user_role_view')) {
             $userItems[] = [
                 'label' => 'Группы',
                 'url' => ['/user/role/index'],
             ];
         }
 
-        if ($user->can('user_permission_view')) {
+        if ($user->can('system_user_permission_view')) {
             $userItems[] = [
                 'label' => 'Разрешения',
                 'url' => ['/user/permission/index'],
@@ -182,7 +182,7 @@ CSS;
         /**
          * Кеш.
          */
-        if ($user->can('clear_cache')) {
+        if ($user->can('system_clear_cache')) {
             $menuItems[] = [
                 'label' => 'Очистить кэш',
                 'url' => CF::getCleanUrl() . '?clear_cache=1',

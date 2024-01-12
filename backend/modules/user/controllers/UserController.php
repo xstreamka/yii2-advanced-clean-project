@@ -29,22 +29,22 @@ class UserController extends Controller
                     [
                         'actions' => ['index', 'view'],
                         'allow' => true,
-                        'roles' => ['user_view'],
+                        'roles' => ['system_user_view'],
                     ],
                     [
                         'actions' => ['create'],
                         'allow' => true,
-                        'roles' => ['user_create'],
+                        'roles' => ['system_user_create'],
                     ],
                     [
                         'actions' => ['update'],
                         'allow' => true,
-                        'roles' => ['user_update'],
+                        'roles' => ['system_user_update'],
                     ],
                     [
                         'actions' => ['delete'],
                         'allow' => true,
-                        'roles' => ['user_delete'],
+                        'roles' => ['system_user_delete'],
                     ],
                 ],
             ],
