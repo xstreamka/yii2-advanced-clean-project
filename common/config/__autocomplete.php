@@ -22,6 +22,7 @@ class Yii {
  * @property yii\rbac\DbManager $authManager 
  * @property \common\components\UserComponent $user The user component. This property is read-only.
  * @property \Mero\Monolog\MonologComponent $monolog The monolog component. Is a component for the Monolog library.
+ * @property \common\components\CacheComponent|\yii\caching\CacheInterface|null $cache Cache.
  * @property \yii\caching\CacheInterface|null $cacheFrontend Frontend cache.
  *
  */

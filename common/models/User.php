@@ -590,7 +590,7 @@ class User extends ActiveRecord implements IdentityInterface, UserInterface
     public static function getUsersByGroup($group, $obj = false)
     {
         $query = self::find()
-            ->where(['status' => User::STATUS_ACTIVE])
+            ->active()
             ->authAssignment($group);
 
         if (!$obj) {

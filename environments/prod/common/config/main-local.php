@@ -15,6 +15,10 @@ return [
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@common/mail',
+            'useFileTransport' => !YII_ENV_PROD,
+            'transport' => [
+                'dsn' => "smtp://:@mail1.agatgroup.com:25?timeout=15",
+            ],
         ],
     ],
 ];

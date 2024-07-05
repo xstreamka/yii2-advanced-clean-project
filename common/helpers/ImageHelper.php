@@ -63,24 +63,43 @@ class ImageHelper
     protected static function resizedImage(string $filename, string $imagePath, int $w, int $h, int $quality) : string
     {
         $substr = substr($filename, 0, 2);
-        $resizePath = "/upload/resize/{$substr}/{$w}_{$h}_{$quality}";
+        $resizePath = "/upload/resize/{$w}_{$h}_{$quality}/{$substr}";
         $resizedUrl = "{$resizePath}/{$filename}";
-        $resizedPath = Yii::getAlias("@resize/{$substr}/{$w}_{$h}_{$quality}");
+        $resizedPath = Yii::getAlias("@resize/{$w}_{$h}_{$quality}/{$substr}");
         $resizedFile = "{$resizedPath}/{$filename}";
 
         if (!file_exists($imagePath)) {
             if (YII_ENV_PROD) {
                 return false;
             } else {
-                return Yii::$app->params['prodUrl'] . $resizedUrl;
+                return Yii::$app->request->hostInfo . $resizedUrl;
             }
         }
 
         FileHelper::createDirectory($resizedPath);
         if (!file_exists($resizedFile)) {
-            self::resizeImage($imagePath, $resizedFile, $w, $h, $quality);
+            ImageHelper::resizeImage($imagePath, $resizedFile, $w, $h, $quality);
         }
         return $resizedUrl;
+    }
+
+    /**
+     * Получить фото (превью) нужного размера.
+     *
+     * @param string $imagePath Путь к файлу
+     * @param int $w Ширина
+     * @param int $h Высота
+     * @param int $quality Качество
+     *
+     * @return string
+     */
+    public static function getResizedImage(string $imagePath, int $w, int $h, int $quality = 100) : string
+    {
+        if (!$imagePath) {
+            return false;
+        }
+
+        return self::resizedImage(basename($imagePath), $imagePath, $w, $h, $quality) . '?v=' . filemtime($imagePath);
     }
 
     /**

@@ -50,8 +50,7 @@ class UserQuery extends ActiveQuery
     public function authAssignment($assignment)
     {
         return $this->joinWith(['authAssignment' => function (ActiveQuery $query) use ($assignment) {
-            $query
-                ->where(['auth_assignment.item_name' => $assignment]);
-        }]);
+            $query->where(['auth_assignment.item_name' => $assignment]);
+        }], false);
     }
 }

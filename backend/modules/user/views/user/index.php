@@ -6,6 +6,7 @@
  * Time: 16:33
  */
 
+use common\helpers\CF;
 use common\models\User;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -52,14 +53,14 @@ $this->params['breadcrumbs'][] = $this->title;
             'email:email',
             [
                 'attribute' => 'status',
-                'filter' => User::STATUS_TEXT,
+                'filter' => Html::activeDropDownList($searchModel, 'status', User::STATUS_TEXT, CF::getSelectpickerOptions(null)),
                 'content' => function (User $data) {
                     return $data->statusText;
                 }
             ],
             [
                 'attribute' => 'group',
-                'filter' => $groups,
+                'filter' => Html::activeDropDownList($searchModel, 'group', $groups, CF::getSelectpickerOptions(null)),
                 'content' => function (User $data) {
                     $str = '<ul>';
 	                foreach ($data->group as $groupName => $group) {

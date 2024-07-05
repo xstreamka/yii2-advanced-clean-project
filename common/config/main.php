@@ -15,11 +15,12 @@ return [
             'identityCookie' => ['name' => '_identity-yii2', 'httpOnly' => true],
         ],
         'cache' => [
-            'class' => \yii\caching\FileCache::class,
-            'defaultDuration' => 3600,
+            'class' => \common\components\CacheComponent::class,
+            'defaultDuration' => 60 * 60 * 1,
         ],
         'cacheFrontend' => [
-            'class' => \yii\caching\FileCache::class,
+            'class' => \common\components\CacheComponent::class,
+            'defaultDuration' => 60 * 60 * 1,
             'cachePath' => Yii::getAlias('@frontend') . '/runtime/cache'
         ],
         'i18n' => [
