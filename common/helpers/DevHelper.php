@@ -74,26 +74,27 @@ class DevHelper
 
     /**
      * Вывод ошибки при создании модели.
+     * @param bool $asHtml
      * @return string
      */
-    public static function errorWhileCreating(): string
+    public static function errorWhileCreating($asHtml = true): string
     {
         $debug = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
 
         /** @var ActiveRecord $model */
         $model = $debug['object'] ?? null;
 
-        $errorMsg = [
+        $errorMsg = VarDumper::export([
             'file' => $debug['file'],
             'line' => $debug['line'],
             'method' => $debug['class'] . $debug['type'] . $debug['function'] . '()',
             'args' => $debug['args'],
             'errors' => $model->errors ?? [],
             'attributes' => $model->attributes ?? [],
-        ];
+        ]);
 
         return
             'Ошибка создания "' . ($model instanceof ActiveRecord ? $model->tableName() : null) . '".'
-            . '<br><br><pre>' . VarDumper::export($errorMsg) . '</pre>';
+            . ($asHtml ? "<br><br><pre>{$errorMsg}</pre>" : "\n\n$errorMsg");
     }
 }
